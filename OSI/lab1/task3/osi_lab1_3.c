@@ -15,6 +15,7 @@ int main(int argc,char* argv[]){
     FILE* file_output = fopen(argv[2], "wb");
     if(file_output == NULL){
         printf("file2 is NULL");
+        fclose(file_input);
         return 2;
     }
 

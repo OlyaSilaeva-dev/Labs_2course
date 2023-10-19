@@ -45,7 +45,6 @@ int processFile(int argc, char* argv[], int* res) {
         int count = 0;
         unsigned int currentValue;
         while (fread(&currentValue, sizeof(currentValue), 1, file) == 1) {
-            //printf("%u %u\n", maskValue, currentValue);
             if ((currentValue & maskValue) == maskValue) {
                 count++;
             }
