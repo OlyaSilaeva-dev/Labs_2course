@@ -4,11 +4,10 @@
 #include<string.h>
 #define BUFSIZE 255
 
-void searchInFile(const char *substring, const char *filePath) {
+int searchInFile(const char *substring, const char *filePath) {
     FILE *file = fopen(filePath, "r");
     if (file == NULL) {
-        printf("Unable to open file: %s\n", filePath);
-        return;
+        return 1;
     }
 
     char line[BUFSIZE];
@@ -22,21 +21,31 @@ void searchInFile(const char *substring, const char *filePath) {
         }
     }
     fclose(file);
+    return 0;
 }
 
-void searchInFiles(const char *substring, ...) {
+int searchInFiles(const char *substring, ...) {
     va_list filePaths;
     const char *currentPath;
 
     va_start(filePaths, substring);
     while ((currentPath = va_arg(filePaths, const char *)) != NULL) {
-        searchInFile(substring, currentPath);
+        int ansSIF = searchInFile(substring, currentPath);
+        if(ansSIF != 0){
+            return ansSIF;
+        }
     }
     va_end(filePaths);
+    return 0;
 }
 
 int main(){
     const char *substring = "blablabla";
 
-    searchInFiles(substring, "file1.txt", "file2.txt", NULL);
+    int ans = searchInFiles(substring, "file1.txt", "file2.txt", NULL);
+    if(ans != 0){
+        printf("file_opening_error");
+        return 1;
+    }
+    return 0;
 }
