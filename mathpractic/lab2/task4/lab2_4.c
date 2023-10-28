@@ -51,7 +51,7 @@ int isConvexPolygon(int num, ...){
 
 int main(){
     Point p1 = {1, 3};
-    Point p2 = {2, 1};
+    Point p2 = {2, 3};
     Point p3 = {4, 4};
     
     int result = isConvexPolygon(3, p1, p2, p3);
