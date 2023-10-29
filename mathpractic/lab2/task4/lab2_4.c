@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <math.h>
 
 typedef struct{
     double x;
@@ -49,6 +50,20 @@ int isConvexPolygon(int num, ...){
     return 1;
 }
 
+double polynomial_value(double point, int degree, ...) {
+    va_list coefficients;
+    va_start(coefficients, degree);
+
+    double result = 0;
+    for (int i = degree; i >= 0; i--) {
+        double coeff = va_arg(coefficients, double);
+        result += coeff * pow(point, i);
+    }
+
+    va_end(coefficients);
+    return result;
+}
+
 int main(){
     Point p1 = {0, 0};
     Point p2 = {0, 1};
@@ -61,6 +76,14 @@ int main(){
     } else {
         printf("The polygon is not convex\n");
     }
+
+    double point = 2.5;
+    int degree = 3;
+    double coeff0 = 2, coeff1 = 4, coeff2 = 3, coeff3 = 1; 
+
+    double result1 = polynomial_value(point, degree, coeff0, coeff1, coeff2, coeff3);
+    printf("the value of a polynomial of degree %d at the point %f equal to %f\n", degree, point, result1);
+
 
     return 0;
 }

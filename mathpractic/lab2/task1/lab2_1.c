@@ -174,8 +174,9 @@ int main(int argc, char *argv[])
 
     int len = my_strlen(argv[2]);
     char *string2 = (char *)malloc(sizeof(char) * (len + 1));
-    if (!string2)
+    if (string2 == NULL)
     {
+        printf("memory allocation error");
         return 1;
     }
 
@@ -201,6 +202,7 @@ int main(int argc, char *argv[])
         char *res = malloc(sizeof(char) * SIZE); // Adjust the size as needed
         if (!res)
         {
+            printf("memory allocation error");
             free(string2);
             return 1;
         }
