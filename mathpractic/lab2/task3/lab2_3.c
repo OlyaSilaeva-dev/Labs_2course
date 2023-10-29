@@ -71,9 +71,9 @@ int searchInFiles(const char *substring, ...) {
 }
 
 int main(){
-    const char *substring = "blablabla";
+    const char *substring = "";
 
-    int ans = searchInFiles(substring, "file1.txt", "file2.txt", NULL);
+    int ans = searchInFiles(substring, "file3.txt", "file1.txt", "file2.txt", NULL);
     if(ans != 0){
         printf("file_opening_error");
         return 1;

@@ -14,6 +14,10 @@ double geometricAverage(int n, ...){
     }
     va_end(args);
 
+    if ((n % 2 == 0) && (product < 0)){
+        return product;
+    }
+
     double geometric_mean_value = pow(product, 1.0 / n);
     return geometric_mean_value;
 }
@@ -31,7 +35,7 @@ double power_recursive(double base, int exponent) {
 }
 
 int main() {
-    double avg_geo = geometricAverage(3, 2.0, 8.0, 32.0);
+    double avg_geo = geometricAverage(2, 1.0, -1.0);
     printf("arithmetic mean: %lf\n", avg_geo);
 
     double base = 2.5;

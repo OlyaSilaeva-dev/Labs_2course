@@ -50,11 +50,12 @@ int isConvexPolygon(int num, ...){
 }
 
 int main(){
-    Point p1 = {1, 3};
-    Point p2 = {2, 3};
-    Point p3 = {4, 4};
+    Point p1 = {0, 0};
+    Point p2 = {0, 1};
+    Point p3 = {1, 1};
+    Point p4 = {1, 0};
     
-    int result = isConvexPolygon(3, p1, p2, p3);
+    int result = isConvexPolygon(4, p3, p2, p1, p4);
     if(result){
         printf("The polygon is convex\n");
     } else {

@@ -18,7 +18,7 @@ int my_strlen(char *str)
 void my_strcpy(char *str1, char *str2)
 {
     int index = 0;
-    while (str2[index] != '\0' && str1[index] != '\0')
+    while (str2[index] != '\0')
     {
         str1[index] = str2[index];
         index++;
@@ -55,61 +55,67 @@ int string_to_int(char *str, int *res)
     return 0;
 }
 
-int reverseString(char *str)
+int reverseString(char *str1, char *str2)
 {
-    int len = my_strlen(str);
-    for (int i = 0; i < len / 2; i++)
+    int len = my_strlen(str1);
+    for (int i = 0; i < len; i++)
     {
-        char temp = str[i];
-        str[i] = str[len - i - 1];
-        str[len - i - 1] = temp;
+        str2[len - i - 1] = str1[i];
     }
+    str2[len] = '\0';
     return 0;
 }
 
-int everySecondUpperCase(char *str)
+int everySecondUpperCase(char *str1, char *str2)
 {
-    int len = my_strlen(str);
+    int len = my_strlen(str1);
+
+    for (int i = 0; i < len; i++)
+    {
+        str2[i] = str1[i];
+    }
+
     for (int i = 1; i < len; i += 2)
     {
-        if (str[i] >= 'a' && str[i] <= 'z')
+        if (str2[i] >= 'a' && str2[i] <= 'z')
         {
-            str[i] += 'A' - 'a';
+            str2[i] = str2[i] + ('A' - 'a');
         }
     }
+    str2[len] = '\0';
     return 0;
 }
 
-int groupSameElements(char *str)
+int groupSameElements(char *str1, char *str2)
 {
-    int len = my_strlen(str);
+    int len = my_strlen(str1);
     char *a = malloc(sizeof(char) * (len + 1));
     int j = 0;
 
     for (int i = 0; i < len; i++)
     {
-        if (isdigit(str[i]))
+        if (isdigit(str1[i]))
         {
-            a[j++] = str[i];
+            a[j++] = str1[i];
         }
     }
     for (int i = 0; i < len; i++)
     {
-        if (isalpha(str[i]))
+        if (isalpha(str1[i]))
         {
-            a[j++] = str[i];
+            a[j++] = str1[i];
         }
     }
     for (int i = 0; i < len; i++)
     {
-        if (!isalnum(str[i]))
+        if (!isalnum(str1[i]))
         {
-            a[j++] = str[i];
+            a[j++] = str1[i];
         }
     }
 
     a[j] = '\0';
-    my_strcpy(str, a);
+    my_strcpy(str2, a);
     free(a);
     return 0;
 }
@@ -138,15 +144,18 @@ int stringConcatenation(int argc, char *argv[], char *res)
 
 int testArgs(int argc, char *argv[])
 {
-    if(argc < 3) {
+    if (argc < 3)
+    {
         return 1;
     }
 
-    if (argc > 3 && argv[1][1] != 'c') {
+    if (argc > 3 && argv[1][1] != 'c')
+    {
         return 1;
     }
 
-    if (my_strlen(argv[1]) != 2 && argv[1][0] != '-') {
+    if (my_strlen(argv[1]) != 2 && argv[1][0] != '-')
+    {
         return 2;
     }
     return 0;
@@ -163,30 +172,45 @@ int main(int argc, char *argv[])
 
     char flag = argv[1][1];
 
+    int len = my_strlen(argv[2]);
+    char *string2 = (char *)malloc(sizeof(char) * (len + 1));
+    if (!string2)
+    {
+        return 1;
+    }
+
     switch (flag)
     {
     case 'l':
         printf("%d\n", my_strlen(argv[2]));
         break;
     case 'r':
-        reverseString(argv[2]);
-        printf("%s\n", argv[2]);
+        reverseString(argv[2], string2);
+        printf("%s\n", string2);
         break;
 
     case 'u':
-        everySecondUpperCase(argv[2]);
-        printf("%s\n", argv[2]);
+        everySecondUpperCase(argv[2], string2);
+        printf("%s\n", string2);
         break;
     case 'n':
-        groupSameElements(argv[2]);
-        printf("%s\n", argv[2]);
+        groupSameElements(argv[2], string2);
+        printf("%s\n", string2);
         break;
     case 'c':
         char *res = malloc(sizeof(char) * SIZE); // Adjust the size as needed
+        if (!res)
+        {
+            free(string2);
+            return 1;
+        }
         *res = '\0';
         int ans = stringConcatenation(argc, argv, res);
-        if(ans == 1){
+        if (ans == 1)
+        {
             printf("error: str_to_int\n");
+            free(string2);
+            free(res);
             return 2;
         }
 
@@ -199,5 +223,6 @@ int main(int argc, char *argv[])
         break;
     }
 
+    free(string2);
     return 0;
 }
