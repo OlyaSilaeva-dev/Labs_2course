@@ -1,12 +1,32 @@
 #include<stdio.h>
 
+int mySum(int a, int b){
+    int carry = 0;
+    while(b != 0){
+        carry = a & b;
+        a = a ^ b;
+        b = (carry << 1);
+    }
+    return a;
+}
+
+int myDiff(int a, int b){
+    int borrow = 0;
+    while(b != 0){
+        borrow = ((~a) & b);
+        a = a ^ b;
+        b = (borrow << 1);
+    }
+    return a;
+
+}
 
 char int2char(int num){
     if (num >= 0 && num <= 9){
-        return (int)'0' + num;
+        return  mySum((int)'0', num);
     }
 
-    return (int)'A' + num - 10;
+    return mySum((int)'A',myDiff(num, 10));
 }
 
 int conversion(int num, int r, char* res, int* size){
@@ -17,7 +37,6 @@ int conversion(int num, int r, char* res, int* size){
     for(int m = 0; m < r; m++){
         k = k | (1 << m);
     }
-    printf("k = %d\n", k);
     res[0] = int2char(num & k) ;
 
     int num1 = num;

@@ -30,7 +30,7 @@ int cmp1 (const void *a, const void *b){
     struct Employee *emp2 = (struct Employee *)b;
 
     if(emp1->salary != emp2->salary){
-        return emp1->salary < emp2->salary;
+        return emp1->salary - emp2->salary;
     }
 
     int check_ser = check_name1(emp1->surname, emp2->surname);
@@ -43,7 +43,7 @@ int cmp1 (const void *a, const void *b){
         return check_names;
     }
 
-    return emp1->id < emp2->id;
+    return emp1->id - emp2->id;
 }
 
 int check_name2(char* a, char* b){
@@ -64,7 +64,7 @@ int cmp2 (const void *a, const void *b){
     struct Employee *emp2 = (struct Employee *)b;
 
     if(emp1->salary != emp2->salary){
-        return emp1->salary > emp2->salary;
+        return emp2->salary - emp1->salary;
     }
 
     int check_ser = check_name2(emp1->surname, emp2->surname);
@@ -92,6 +92,20 @@ int checkArgs(int argc, char* argv[]){
     return 0;
 }
 
+int checkScanf(FILE* file_input, struct Employee* infa, int* sizeInf){
+    int i = 0;
+    while (fscanf(file_input, "%u %s %s %lf", &infa[i].id, infa[i].name, infa[i].surname, &infa[i].salary) == 4){   
+        if(i >= MAX_EMPLOYEES){
+            free(infa);
+            fclose(file_input);
+            return 1;
+        }
+        i++;   
+    }
+    *sizeInf = i;
+    return 0;
+}
+
 int main(int argc, char * argv[]){
     int check = checkArgs(argc, argv);
     if(check != 0){
@@ -116,18 +130,14 @@ int main(int argc, char * argv[]){
         return 4;
     }
 
-
-    int i = 0;
-    while (fscanf(file_input, "%u %s %s %lf", &infa[i].id, infa[i].name, infa[i].surname, &infa[i].salary) == 4){   
-        if(i >= MAX_EMPLOYEES){
-            printf("too much employees");
-            fclose(file_input);
-            return 4;
-        }
-        i++;   
+    int sizeInf;
+    if(checkScanf(file_input, infa, &sizeInf) != 0){
+        printf("too much employees");
+        free(infa);
+        return 5;
     }
-    
-    int sizeInf = i;
+
+
     switch (argv[1][1])
     {
     case 'a':
@@ -138,13 +148,15 @@ int main(int argc, char * argv[]){
         break;
     default:
         fclose(file_input);
+        free(infa);
         printf("Wrong flag");
-        return 5;
+        return 6;
     }
     FILE* file_output = fopen(argv[3], "w");
     if(file_output == NULL){
         printf("file_output is NULL");
         fclose(file_input);
+        free(infa);
         return 3;
     }
     for(int j = 0; j < sizeInf; j++){
