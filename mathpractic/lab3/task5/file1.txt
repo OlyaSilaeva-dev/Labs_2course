@@ -5,3 +5,9 @@
 6 kostya chernov 203 4 4 5 4 5
 1 kristina mironova 209 4 3 4 5 4
 7 maxim markov 207 5 5 4 4 5
+10 maxim kazarin 210 3 4 3 5 4
+9 denis volkov 201 5 5 4 5 4
+8 nikita aristov 205 3 3 5 4 3
+11 gosha voronkov 202 5 5 4 5 4
+
+
