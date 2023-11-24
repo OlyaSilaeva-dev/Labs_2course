@@ -1,0 +1,3 @@
+/home/olya/labs_2sem/osi/lab2/task4/file1.txt
+/home/olya/labs_2sem/osi/lab2/task4/file2.txt
+/home/olya/labs_2sem/osi/lab2/task4/file3.txt
