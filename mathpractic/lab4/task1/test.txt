@@ -1,0 +1,6 @@
+#define 1 Hello
+#define 2 My
+#define 3 name
+#define 4 is
+#define 5 Olya
+1 ! 2 3 4 5 .
