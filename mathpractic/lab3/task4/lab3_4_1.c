@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <locale.h>
 
 #define MAX_SIZE 100
 #define STRING_SIZE 50
@@ -107,16 +108,19 @@ void printExpiredMails(Post* post) {
     printf("Истекшие отправления:\n");
     for (int i = 0; i < post->mailCount; i++) {
         struct tm mailTime;
-        sscanf(post->mails[i].createdAt, "%d:%m:%Y %H:%M:%S", &mailTime);
+        sscanf(post->mails[i].createdAt, "%d:%d:%d %d:%d:%d",
+               &mailTime.tm_year, &mailTime.tm_mon, &mailTime.tm_mday,
+               &mailTime.tm_hour, &mailTime.tm_min, &mailTime.tm_sec);
+        
+        mailTime.tm_year -= 1900;
+        mailTime.tm_mon -= 1;
         time_t mailTimestamp = mktime(&mailTime);
 
         if (difftime(now, mailTimestamp) > 0 && strcmp(post->mails[i].deliveryTime, "") == 0) {
             printMailInformation(&post->mails[i]);
         }
     }
-}
-
-int compareMails(const void* a, const void* b) {
+    int compareMails(const void* a, const void* b) {
     Mail* mailA = (Mail*)a;
     Mail* mailB = (Mail*)b;
     int indexComparison = strcmp(mailA->recipientAddress.index, mailB->recipientAddress.index);
@@ -147,6 +151,7 @@ int main() {
         printf("5. Показать все истекшие отправления\n");
         printf("6. Выход\n");
         scanf("%d", &option);
+        getchar();
 
         switch (option) {
             case 1:

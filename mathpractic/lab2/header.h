@@ -18,7 +18,40 @@ enum status_codes {
     FILE_NOT_OPEN = -2,
     NO_MEMORY = -1,
     WRONG_INPUT = 2,
+    OVERFLOWED = 3,
     TOO_MUCH_ITERATIONS = 5,
 };
+
+void print_err(int st) {
+    switch (st)
+    {
+    case NO_MEMORY:
+        printf("memory allocation error");
+        break;
+    
+    case INVALID_ARGC:
+        printf("wrong argc");
+        break;
+    
+    case FILE_NOT_OPEN:
+        printf("file opening error");
+        break;
+    
+    case WRONG_INPUT:
+        printf("wrong input");
+        break;
+    
+    case OVERFLOWED:
+        printf("overflowed");
+        break;
+    
+    case TOO_MUCH_ITERATIONS:
+        printf("too much iterations");
+        break;
+    
+    default:
+        break;
+    }
+}
 
 #endif
