@@ -3,7 +3,7 @@
 #define MAX_ITERATIONS 1000
 
 double foo(double x) {
-    return 0.5 * x + 1;
+    return 0.5 * x + 0.1;
 }
 
 int RootByDichotomy(double left, double right, double eps, double (*foo)(double), double* res){
@@ -38,7 +38,7 @@ int RootByDichotomy(double left, double right, double eps, double (*foo)(double)
 int main(){
     double right = -5.0;
     double left = 5.0;
-    double epsilon = 0.00001;
+    double epsilon = 0.00000001;
     double result;
     int ans = RootByDichotomy(left, right, epsilon, foo, &result);
     if(ans != OK) {

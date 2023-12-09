@@ -99,14 +99,14 @@ int has_finite_representation(bool** res, int base, int count, ...) {
 }
 
 int main() {
-    double num1 = 0.25;
+    double num1 = 0.5;
     double num2 = 0.333;
     double num3 = 0.4;
     double num4 = 0.5;
     int count = 4;
     bool* res;
 
-    int ans = has_finite_representation(&res, 5, count, num1, num2, num3, num4);
+    int ans = has_finite_representation(&res, 8, count, num1, num2, num3, num4);
 
     if(ans != OK) {
         printf("Error: %d", ans);

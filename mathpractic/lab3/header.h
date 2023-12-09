@@ -12,7 +12,7 @@
 #include <stdarg.h>
 #include <complex.h>
 
-enum status_codes {
+typedef enum status_codes {
     OK = 0,
     INVALID_ARGC = 1,
     FILE_NOT_OPEN = -2,
@@ -22,7 +22,8 @@ enum status_codes {
     LIST_IS_EMPTY = 4,
     TOO_MUCH_ITERATIONS = 5,
     ELEMENT_NOT_FOUND = 6,
-};
+    WRONG_PARAMETR = 7,
+}status_codes;
 
 void print_err(int st) {
     switch (st)

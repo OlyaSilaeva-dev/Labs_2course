@@ -107,7 +107,7 @@ int inputStudents(char* argv[], Student * infa, int* mas_size) {
     if (file_input == NULL){ return 3; }
 
     int i = 0;
-    while (fscanf(file_input, "%u %s %s %s %lf %lf %lf %lf %lf", &infa[i].id, &infa[i].name, &infa[i].surname, &infa[i].group, &infa[i].grades[0], &infa[i].grades[1], &infa[i].grades[2], &infa[i].grades[3], &infa[i].grades[4]) == 9) {
+    while (fscanf(file_input, "%u %s %s %s %lf %lf %lf %lf %lf", &infa[i].id, infa[i].name, infa[i].surname, infa[i].group, infa[i].grades, &infa[i].grades[1], &infa[i].grades[2], &infa[i].grades[3], &infa[i].grades[4]) == 9) {
         if (i >= MAX_STUDENT) {
             fclose(file_input);
             return 4;
@@ -153,8 +153,12 @@ int printfStudents(FILE* file_output, int mas_size, Student* infa) {
 
 int averangeScore(FILE* file_output, int mas_size, Student* infa){
     Student* res = (Student*)malloc(sizeof(Student) * MAX_STUDENT);
+    if(res == NULL){
+        return 2;
+    }
     double* averanges = (double*)malloc(sizeof(double) * mas_size);
-    if(res == NULL || averanges == NULL){
+    if(averanges == NULL){
+        free(res);
         return 2;
     }
 
@@ -288,6 +292,10 @@ int main(int argc, char *argv[]) {
     }
 
     Student *students = (Student *)malloc(sizeof(Student) * MAX_STUDENT);
+    if(students == NULL){
+        printf("memory allocation error");
+        return 2;
+    }
     int mas_size;
     int ans_input = inputStudents(argv, students, &mas_size);
     if(ans_input != 0) {

@@ -1,33 +1,41 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "header.h"
-
+#include "../header.h"
 #define HASHSIZE 128
 
-typedef struct Macro{
+struct Macro {
     char *name;
     char *value;
     struct Macro *next;
-} Macro; 
+};
 
+struct Macro *hashtable[HASHSIZE];
 
-
+int char2int(char num) {
+    if (num >= '0' && num <= '9') {
+            return num - '0';
+        } else if (num >= 'A' && num <= 'Z') {
+            return num - 'A' + 10;
+        } else if (num >= 'a' && num <= 'z') {
+            return num - 'a' + 36;
+    }
+}
 
 unsigned int hash(char *str) {
     unsigned int hashval = 0;
+    int base = 62;
 
     while (*str) {
-        hashval = (hashval << 5) + (*str++); 
+        char c = *str++;
+        int intC = char2int(c);
+        hashval = hashval * base + intC;
     }
 
     return hashval % HASHSIZE;
 }
 
-int insert_macro(char *name, char *value, Macro *hashtable[]) {
+int insert_macro(char *name, char *value) {
     unsigned int h = hash(name);
 
-    Macro *new_macro = (Macro*)malloc(sizeof(Macro));
+    struct Macro *new_macro = (struct Macro *)malloc(sizeof(struct Macro));
     if(new_macro == NULL) {
         return NO_MEMORY;
     }
@@ -38,11 +46,10 @@ int insert_macro(char *name, char *value, Macro *hashtable[]) {
     return OK;
 }
 
-//поиск значения макроса в хэш-таблице
-char *lookup_macro(char *name, Macro *hashtable[]) {
+char *lookup_macro(char *name) {
     unsigned int h = hash(name);
 
-    Macro *macro = hashtable[h];
+    struct Macro *macro = hashtable[h];
     while (macro != NULL) {
         if (strcmp(name, macro->name) == 0) {
             return macro->value;
@@ -53,20 +60,21 @@ char *lookup_macro(char *name, Macro *hashtable[]) {
     return NULL;
 }
 
-//обработка текста с заменой максросов
-int process_text(FILE* input_file, Macro *hashtable[]) {
+int process_text(FILE *input_file) {
     char line[256];
 
-    while(fgets(line, sizeof(line), input_file) != NULL) {
-        char def_name[256], value[256];
-        if(sscanf(line, "#define %s %s", def_name, value) == 2) {
-            if(insert_macro(def_name, value, hashtable) != 0) {
-                return WRONG_INPUT;
-            }        
+    while (fgets(line, sizeof(line), input_file) != NULL) {
+        if (line[0] == '#' && line[1] == 'd' && line[2] == 'e' && line[3] == 'f') {
+
+            char def_name[BUFSIZ], value[BUFSIZ];
+            sscanf(line, "#define %s %s", def_name, value);
+            if(insert_macro(def_name, value) != OK) {
+                return NO_MEMORY;
+            }
         } else {
             char *token, *rest = line;
             while ((token = strtok_r(rest, " \t\n", &rest)) != NULL) {
-                char *macro_value = lookup_macro(token, hashtable);
+                char *macro_value = lookup_macro(token);
                 if (macro_value != NULL) {
                     printf("%s ", macro_value);
                 } else {
@@ -75,25 +83,28 @@ int process_text(FILE* input_file, Macro *hashtable[]) {
             }
         }
     }
-
     return OK;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 2) {
+        print_err(INVALID_ARGC);
         return INVALID_ARGC;
     }
 
-    Macro *hashtable[HASHSIZE];
-
     FILE *input_file = fopen(argv[1], "r");
     if (input_file == NULL) {
+        print_err(FILE_NOT_OPEN);
         return FILE_NOT_OPEN;
-    } 
+    }
 
-    process_text(input_file, hashtable);
+    int st = process_text(input_file);
+    if(st != OK) {
+        print_err(st);
+        return st;
+    }
 
     fclose(input_file);
 
-    return OK;
+    return 0;
 }

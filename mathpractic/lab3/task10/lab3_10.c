@@ -16,7 +16,7 @@ struct Node* add_node(char data) {
     return newNode;
 }
 
-int add_child(struct Node* parent, struct Node* child) {
+status_codes add_child(struct Node* parent, struct Node* child) {
     parent->children = realloc(parent->children, (parent->childCount + 1) * sizeof(struct Node*));
     if (parent->children == NULL) {
         return NO_MEMORY;
