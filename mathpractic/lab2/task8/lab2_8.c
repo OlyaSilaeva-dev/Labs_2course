@@ -62,10 +62,27 @@ int sum_two_args(char* a, char* b, int base, char** tempResult) {
         }
     }
     
-    res[i] = '\0';
-    char* res1 = reverse(res);
+    size_t j = i - 1;
+    while (j > 0 && res[j] == '0') {
+        j--;
+    }
+
+   char* trimRes = (char*)malloc(sizeof(char) * (j + 1));
+    if (trimRes == NULL) {
+        free(res);
+        free(revA);
+        free(revB);
+        return NO_MEMORY;
+    }
+
+    strncpy(trimRes, res, j + 1);
+    trimRes[j + 1] = '\0';
+
+    char* res1 = reverse(trimRes);
+
     *tempResult = res1;
-    
+
+    free(trimRes);
     free(res);
     free(revA);
     free(revB);
@@ -106,12 +123,12 @@ int sums(char** res, int base, int count, ...) {
 }
 
 int main() {
-    char* num1 = "A";
-    char* num2 = "A";
-    char* num3 = "A";
+    char* num1 = "00000000000000000000000000000000000000";
+    char* num2 = "0000000000000000000000000000000000000000000";
+    char* num3 = "000000000000000000000000000000000000000000000000000000000000";
     char* result;
 
-    int ans = sums(&result, 11, 3, num1, num2, num3);
+    int ans = sums(&result, 2, 3, num1, num2, num3);
 
     if (ans == OK) {
         printf("Result: %s\n", result);
