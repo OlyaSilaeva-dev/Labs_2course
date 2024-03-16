@@ -27,7 +27,7 @@ status_codes add_child(struct Node* parent, struct Node* child) {
 }
 
 void print_tree(struct Node* root, int level, FILE* fptr) {
-    if (root != NULL) {
+    if (root != NULL) {  
         for (int i = 0; i < level; i++) {
             fprintf(fptr, "   ");
         }

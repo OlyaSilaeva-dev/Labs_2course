@@ -1,0 +1,10 @@
+Smith John Robert 15:5:1990 M 50000.0
+Johnson Alice Marie 22:8:1985 W 60000.0
+Williams Robert James 10:3:1978 M 75000.0
+Jones Emily Lee 5:12:1995 W 55000.0
+Brown Michael Alexander 20:6:1982 M 80000.0
+Davis Olivia Grace 7:9:1993 W 70000.0
+Miller David Christopher 12:11:1970 M 90000.0
+Wilson Sophia Rose 3:4:1988 W 60000.0
+Moore William Thomas 18:2:1998 M 65000.0
+Taylor Emma Nicole 25:10:1980 W 85000.0

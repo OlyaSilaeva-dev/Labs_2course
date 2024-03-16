@@ -86,25 +86,39 @@ int process_text(FILE *input_file) {
     return OK;
 }
 
+void free_hashtable() {
+    for (int i = 0; i < HASHSIZE; ++i) {
+        struct Macro *current = hashtable[i];
+        while (current != NULL) {
+            struct Macro *temp = current;
+            current = current->next;
+            free(temp->name);
+            free(temp->value);
+            free(temp);
+        }
+        hashtable[i] = NULL; // Устанавливаем указатель на NULL после освобождения
+    }
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        print_err(INVALID_ARGC);
+        fprint_err(stdout, INVALID_ARGC);
         return INVALID_ARGC;
     }
 
     FILE *input_file = fopen(argv[1], "r");
     if (input_file == NULL) {
-        print_err(FILE_NOT_OPEN);
+        fprint_err(stdout, FILE_NOT_OPEN);
         return FILE_NOT_OPEN;
     }
 
     int st = process_text(input_file);
     if(st != OK) {
-        print_err(st);
+        fprint_err(stdout, st);
         return st;
     }
 
     fclose(input_file);
-
+    free_hashtable();
     return 0;
 }

@@ -1,7 +1,7 @@
-#include "../header.h"
-#define MAX_LENGTH 200
-#define FILE_NAME_SIZE 10
-#define ALPHABET_SIZE 62
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 struct TreeNode {
     char data;
@@ -32,33 +32,17 @@ int precedence(char op);
 void freeTree(struct TreeNode* root);
 struct TreeNode* buildExpressionTree(char* infixExpression);
 int evaluateExpressionTree(struct TreeNode* root);
-status_codes generateNameOutput(char** file_output);
 
-status_codes main(int argc, char* argv[]) {
-    if (argc != 2) {
-        fprint_err(stdout, INVALID_ARGC);
-        return INVALID_ARGC;
-    }
-
-    FILE* file_input = fopen(argv[1], "r");
-    if (file_input == NULL) {
-        fprint_err(stdout, FILE_NOT_OPEN);
-        return FILE_NOT_OPEN;
-    }
-    char* infixExpression;
-    infixExpression = (char*)malloc(MAX_LENGTH);
-    if (infixExpression == NULL) {
-        fclose(file_input);
-        return NO_MEMORY;
-    }
-
-    fgets(infixExpression, MAX_LENGTH, file_input);
-    fclose(file_input);
-
+int main() {
+    char infixExpression[100];
+    
+    printf("Enter a Boolean expression: ");
+    fgets(infixExpression, sizeof(infixExpression), stdin);
+    
     // Подсчет количества уникальных переменных в выражении
     int numVariables = 0;
     struct Variable variables[52]; // Предполагаем, что переменные - одиночные буквы английского алфавита
-
+    
     for (int i = 0; infixExpression[i] != '\0'; ++i) {
         if (isalpha(infixExpression[i])) {
             int j;
@@ -73,43 +57,35 @@ status_codes main(int argc, char* argv[]) {
             }
         }
     }
-
+    
     // Создание таблицы истинности
     int numCombinations = 1 << numVariables; // 2^numVariables
     int values[numVariables];
-
-    char* output_name = (char*)malloc(sizeof(char) * FILE_NAME_SIZE);
-    if (output_name == NULL || generateNameOutput(&output_name) != OK) {
-        free(infixExpression);
-        fprint_err(stdout, NO_MEMORY);
-        return NO_MEMORY;
-    }
-    FILE* file_output;
-    file_output = fopen(output_name, "w");
-    free(output_name);
-
-    fprintf(file_output, "\nThe Truth table:\n");
-    fprintf(file_output, "-------------------\n");
-
+    
+    printf("\nThe Truth table:\n");
+    printf("-------------------\n");
+    
+    // Вывод заголовка таблицы
     for (int i = 0; i < numVariables; ++i) {
-        fprintf(file_output, "%c\t", variables[i].name);
+        printf("%c\t", variables[i].name);
     }
-    fprintf(file_output, "Result\n");
-
+    printf("Result\n");
+    
+     // Вывод значений переменных и результатов выражения
     for (int i = 0; i < numCombinations; ++i) {
         for (int j = 0; j < numVariables; ++j) { // Заполнение значений переменных для текущей комбинации
             values[j] = (i >> (numVariables - 1 - j)) & 1;
         }
-
+        
+       
         for (int j = 0; j < numVariables; ++j) { // Вывод значений переменных
-            fprintf(file_output, "%d\t", values[j]);
+            printf("%d\t", values[j]);
             variables[j].value = values[j];
         }
-
-        char tmp[MAX_LENGTH];  // Вычисление и вывод результата выражения
+        
+        char tmp[strlen(infixExpression)];  // Вычисление и вывод результата выражения
         strcpy(tmp, infixExpression);
-        size_t tmpLength = strlen(tmp);
-        for (int k = 0; k < tmpLength; ++k) {
+        for (int k = 0; k < strlen(tmp); ++k) {
             if (isalpha(tmp[k])) {
                 for (int l = 0; l < numVariables; ++l) {
                     if (variables[l].name == tmp[k]) {
@@ -123,56 +99,16 @@ status_codes main(int argc, char* argv[]) {
         struct TreeNode* root = buildExpressionTree(tmp);
 
         int result = evaluateExpressionTree(root);
-
-        fprintf(file_output, "%d\n", result);
+        printf("%d\n", result);
 
         freeTree(root);
     }
-
-    fclose(file_output);
-    free(infixExpression);
-    return OK;
-}
-
-status_codes generateNameOutput(char** file_output) {
-    char* file_name = (char*)malloc(sizeof(char) * (FILE_NAME_SIZE + 1));
-    if (file_name == NULL) {
-        return NO_MEMORY;
-    }
-
-    char alphabet[ALPHABET_SIZE];
-    int index = 0;
-    for (int i = 0; i < 26; i++) {
-        alphabet[index++] = 'a' + i;
-    }
-
-    for (int i = 0; i < 26; i++) {
-        alphabet[index++] = 'A' + i;
-    }
-
-    for (int i = 0; i < 10; i++) {
-        alphabet[index++] = '0' + i;
-    }
-
-    srand(time(NULL));
-    for (int i = 0; i < FILE_NAME_SIZE; i++) {
-        file_name[i] = alphabet[rand() % ALPHABET_SIZE];
-    }
-
-    file_name[FILE_NAME_SIZE] = '\0';
-
-    strcat(file_name, ".txt\0");
-
-    strcpy(*file_output, file_name);
-    free(file_name);
-    return OK;
+    
+    return 0;
 }
 
 struct TreeNode* createNode(char data) {
     struct TreeNode* newNode = (struct TreeNode*)malloc(sizeof(struct TreeNode));
-    if(newNode == NULL) {
-        return NULL;
-    }
     newNode->data = data;
     newNode->left = newNode->right = NULL;
     return newNode;
@@ -180,9 +116,6 @@ struct TreeNode* createNode(char data) {
 
 struct Stack* createStack(unsigned capacity) {
     struct Stack* stack = (struct Stack*)malloc(sizeof(struct Stack));
-    if (stack == NULL) {
-        return NULL;
-    }
     stack->top = -1;
     stack->capacity = capacity;
     stack->array = (struct TreeNode**)malloc(stack->capacity * sizeof(struct TreeNode*));
@@ -255,6 +188,7 @@ int precedence(char op) {
     }
 }
 
+
 void freeTree(struct TreeNode* root) {
     if (root != NULL) {
         freeTree(root->left);
@@ -263,37 +197,27 @@ void freeTree(struct TreeNode* root) {
     }
 }
 
-status_codes addNode(struct Stack* operators, struct Stack* operands) {
+void addNode(struct Stack* operators, struct Stack* operands) {
     struct TreeNode* operatorNode = createNode(pop(operators)->data);
-    if (operatorNode == NULL) {
-        return NO_MEMORY;
-    }
     operatorNode->right = pop(operands);
     operatorNode->left = pop(operands);
     push(operands, operatorNode);
-    return OK;
 }
 
-void addNodeFor2Operators(struct Stack* operators, struct Stack* operands, char operator) {
+void addNodeFor2Operators(struct Stack* operators, struct Stack* operands,char operator) {
     struct TreeNode* operatorNode = createNode(operator);
-    if(operatorNode == NULL) {
-        return;
-    }
     while (!isEmpty(operators) && precedence(operatorNode->data) <= precedence(peek(operators)->data)) {
         struct TreeNode* temp = createNode(pop(operators)->data);
         temp->right = pop(operands);
         temp->left = pop(operands);
         push(operands, temp);
-    }
-    push(operators, operatorNode);
+    }   
+    push(operators, operatorNode);           
 }
 
 struct TreeNode* buildExpressionTree(char* infixExpression) {
     struct Stack* operators = createStack(strlen(infixExpression));
     struct Stack* operands = createStack(strlen(infixExpression));
-    if(operators == NULL || operands == NULL) {
-        return NULL;
-    }
 
     for (int i = 0; infixExpression[i] != '\0'; ++i) {
         if (infixExpression[i] == ' ')
@@ -318,12 +242,21 @@ struct TreeNode* buildExpressionTree(char* infixExpression) {
                 pop(operators);
             }
         } else if (infixExpression[i] == '>') {
+            // Handle the implication operator
             if (infixExpression[i + 1] == '-') {
             }
         } else if (infixExpression[i] == '+') {
+            // Handle the co-implication operator
             if (infixExpression[i + 1] == '>') {
-                i++;
-                addNodeFor2Operators(operators, operands, '<');
+                i++; // Skip the next character
+                struct TreeNode* operatorNode = createNode('+');
+                while (!isEmpty(operators) && precedence(operatorNode->data) <= precedence(peek(operators)->data)) {
+                    struct TreeNode* temp = createNode(pop(operators)->data);
+                    temp->right = pop(operands);
+                    temp->left = pop(operands);
+                    push(operands, temp);
+                }
+                push(operators, operatorNode);
             }
         } else if (infixExpression[i] == '<') {
             if (infixExpression[i + 1] == '>') {
@@ -332,14 +265,17 @@ struct TreeNode* buildExpressionTree(char* infixExpression) {
             }
         } else if (infixExpression[i] == '=') {
             addNodeFor2Operators(operators, operands, '=');
+
         } else if (infixExpression[i] == '!') {
+            // Handle the Sheffer stroke operator
             if (infixExpression[i + 1] == '-') {
-                i++;
+                i++; // Skip the next character
                 addNodeFor2Operators(operators, operands, '!');
             }
         } else if (infixExpression[i] == '?') {
+            // Handle the logical function of Webb operator
             if (infixExpression[i + 1] == '-') {
-                i++;
+                i++; // Skip the next character
                 addNodeFor2Operators(operators, operands, '?');
             }
         }

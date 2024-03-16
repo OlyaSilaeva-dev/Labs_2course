@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "../header.h"
 
 typedef struct Liver {
     char* surname;
@@ -10,211 +9,144 @@ typedef struct Liver {
     double income;
 } Liver;
 
+int cpyLiver(Liver* val1, Liver* val2) {
+    val1->dateBirth = val2->dateBirth;
+    val1->gender = val2->gender;
+    val1->income = val2->income;
+    val1->surname = strdup(val2->surname);
+    val1->name = strdup(val2->name);
+    val1->midname = strdup(val2->midname);
+
+    if(val1->surname == NULL || val1->name == NULL || val1->midname == NULL) {
+        return NO_MEMORY;
+    }
+
+    return OK;
+}
+
+void freeLiver(Liver* liver) {
+    free(liver->surname);
+    free(liver->name);
+    free(liver->midname);
+}
+
+bool less(Liver val1, Liver val2) {
+    if (val1.dateBirth.tm_year != val2.dateBirth.tm_year) {
+        return val1.dateBirth.tm_year > val2.dateBirth.tm_year;
+    }
+    if (val1.dateBirth.tm_mon != val2.dateBirth.tm_mon) {
+        return val1.dateBirth.tm_mon > val2.dateBirth.tm_mon;
+    }
+    return val1.dateBirth.tm_mday > val2.dateBirth.tm_mday;
+}
+
+bool Equal(Liver val1, Liver val2) {
+    return (val1.dateBirth.tm_year == val2.dateBirth.tm_year) &&
+            (val1.dateBirth.tm_mon == val2.dateBirth.tm_mon) &&
+            (val1.dateBirth.tm_mday == val2.dateBirth.tm_mday) &&
+            (val1.gender == val2.gender) &&
+            (val1.income == val2.income) &&
+            (strcmp(val1.name, val2.name) == 0) &&
+            (strcmp(val1.surname, val2.surname) == 0) &&
+            (strcmp(val1.midname, val2.midname) == 0);
+}
+
+
 typedef struct Node {
     Liver value;
     struct Node *next;
 } Node;
 
-Node *head = NULL;
-
-// добавить узел
-void push(Node **head, Liver data) {
-    Node *tmp = (Node*)malloc(sizeof(Node));
-    if (!tmp) {
-        exit(-1); // handle memory allocation failure
+Node* createNode(Liver val) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        exit(EXIT_FAILURE);
     }
-    tmp->value = data;
-    tmp->next = (*head);
-    (*head) = tmp;
+    cpyLiver(&(newNode->value), &val);
+    newNode->next = NULL;
+    return newNode;
 }
 
-// удалить элемент из списка
-Liver pop(Node **head) {
-    if (!head || !(*head)) {
-        exit(-1); // handle invalid head pointer
-    }
-    Node *prev = (*head);
-    Liver val = prev->value;
-    (*head) = (*head)->next;
-    free(prev);
-    return val;
-}
-
-// поиск n-го элемента
-Node* getNth(Node* head, int n) {
-    int cnt = 0;
-    while(cnt < n && head) {
-        head = head->next;
-        cnt++;
-    }
-    return head;
-}
-
-// поиск последнего элемента
-Node* getLast(Node *head) {
-    if (head == NULL) {
-        return NULL;
-    }
-    while (head->next) {
-        head = head->next;
-    }
-    return head;
-}
-
-// добавление элемента в конец
-void pushBack(Node *head, Liver value) {
-    Node *last = getLast(head);
-    Node *tmp = (Node*) malloc(sizeof(Node));
-    if (!tmp) {
-        exit(-1); // handle memory allocation failure
-    }
-    tmp->value = value;
-    tmp->next = NULL;
-    last->next = tmp;
-}
-
-// удаление последнего элемента
-Liver popBack(Node **head) {
-    if (!head || !(*head) || !(*head)->next) {
-        exit(-1); // handle invalid head or empty list
-    }
-    Node *curNode = NULL;
-    Node *predNode = NULL;
-    curNode = *head;
-    while (curNode->next) {
-        predNode = curNode;
-        curNode = curNode->next;
-    }
-    Liver val = curNode->value;
-    if (predNode == NULL) {
-        free(*head);
-        *head = NULL;
+// Функция для вставки элемента в упорядоченный список
+void insert(Node** head, Liver val) {
+    Node* newNode = createNode(val);
+    if (*head == NULL || less(val, (*head)->value)) {
+        newNode->next = *head;
+        *head = newNode;
     } else {
-        free(predNode->next);
-        predNode->next = NULL;
-    }
-    return val;
-}
-
-// вставка на n-е место элемента
-void insert(Node *head, unsigned n, Liver val) {
-    unsigned i = 0;
-    Node *tmp = NULL;
-    while (i < n && head->next) {
-        head = head->next;
-        i++;
-    }
-    tmp = (Node*) malloc(sizeof(Node));
-    if (!tmp) {
-        exit(-1); // handle memory allocation failure
-    }
-    tmp->value = val;
-    if (head->next) {
-        tmp->next = head->next;
-    } else {
-        tmp->next = NULL;
-    }
-    head->next = tmp;
-}
-
-// удаление n-го элемента
-Liver deleteNth(Node **head, int n) {
-    if (!head || !(*head) || n < 0) {
-        exit(-1); // handle invalid head pointer or negative index
-    }
-    if (n == 0) {
-        return pop(head);
-    } else {
-        Node *prev = getNth(*head, n-1);
-        if (!prev || !prev->next) {
-            exit(-1); // handle invalid index
+        Node* current = *head;
+        while (current->next != NULL && less(current->next->value, val)) {
+            current = current->next;
         }
-        Node *elm = prev->next;
-        Liver val = elm->value;
-        prev->next = elm->next;
-        free(elm);
-        return val;
+        newNode->next = current->next;
+        current->next = newNode;
     }
 }
 
-// удаление списка
-void deleteList(Node **head) {
-    if (!head || !(*head)) {
-        exit(-1); // handle invalid head pointer
+//поиск элемента в списке
+Node* search(Node* head, Liver val, int* index) {
+    (*index) = 0;
+    while (head != NULL) {
+        if (Equal(head->value, val)) {
+            (*index)++;
+            return head;
+        } else if (head->value.dateBirth.tm_year < val.dateBirth.tm_year) {
+            return NULL;
+        }
+        head = head->next;
+        (*index)++;
     }
-    Node* prev = NULL;
-    while ((*head)->next) {
-        prev = (*head);
-        (*head) = (*head)->next;
-        free(prev);
-    }
-    free(*head);
+    return NULL;
 }
 
-// печать списка
-void printList(const Node *head) {
-    while (head) {
-        printf("%d ", head->value);
+//удаление элемента из списка 
+int delete(Node** head, Liver val) {
+    Node* temp;
+    if (*head == NULL) {
+        return LIST_IS_EMPTY;
+    }
+    if (Equal((*head)->value, val)) {
+        temp = *head;
+        *head = (*head)->next;
+        freeLiver(&(temp->value));
+        free(temp);
+        return OK;
+    }
+    Node* current = *head;
+    while (current->next != NULL && !Equal(current->next->value, val)) {
+        current = current->next;
+    }
+    if (current->next == NULL) {
+        return ELEMENT_NOT_FOUND;
+    } else {
+        temp = current->next;
+        current->next = current->next->next;
+        freeLiver(&(temp->value));
+        free(temp);
+    }
+    return OK;
+}
+
+//печать списка
+void printList(Node* head) {
+    while (head != NULL) {
+        printf("%s %s %s %d:%d:%d %c %lf\n", head->value.surname, head->value.name, head->value.midname, 
+            head->value.dateBirth.tm_mday, head->value.dateBirth.tm_mon, head->value.dateBirth.tm_year, 
+            head->value.gender, head->value.income);
         head = head->next;
     }
-    printf("\n");
 }
 
-// void fromArray(Node **head, int *arr, size_t size) {
-//     if (!arr || size == 0) {
-//         return;
-//     }
-//     for (size_t i = size - 1; i > 0; --i) {
-//         push(head, arr[i]);
-//     }
-//     push(head, arr[0]);
-// }
 
-// int* toArray(const Node *head) {
-//     int len = 0;
-//     const Node *temp = head;
-//     while (temp) {
-//         len++;
-//         temp = temp->next;
-//     }
-
-//     void* values = (void*) malloc(len * sizeof(void*));
-//     if (!values) {
-//         exit(-1); // handle memory allocation failure
-//     }
-
-//     for (int i = 0; i < len; i++) {
-//         values[i] = head->value;
-//         head = head->next;
-//     }
-//     return values;
-// }
-
-// int main() {
-//     Node* head = NULL;
-//     int arr[] = {1,2,3,4,5,6,7,8,9,10};
-//     fromArray(&head, arr, 10);
-
-//     printList(head);
-
-//     insert(head, 4, 333);
-//     printList(head);
-
-//     pushBack(head, 11);
-//     pushBack(head, 12);
-//     pushBack(head, 13);
-//     pushBack(head, 14);
-//     printList(head);
-
-//     printf("%d\n", pop(&head));
-//     printf("%d\n", popBack(&head));
-
-//     printList(head);
-
-//     deleteNth(&head, 4);
-//     printList(head);
-
-//     deleteList(&head);
-
-//     return 0;
-// }
+// Освобождение памяти, выделенной под упорядоченный список
+void deleteList(Node** head) {
+    Node* current = *head;
+    Node* next;
+    while (current != NULL) {
+        next = current->next;
+        freeLiver(&(current->value));
+        free(current);
+        current = next;
+    }
+    *head = NULL;
+}
