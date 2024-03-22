@@ -1,9 +1,15 @@
-#include "../header.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct BinaryHeap {
     int* heap;
     int size;
 } BinaryHeap;
+
+void createBinaryHeap(BinaryHeap* pq){
+    pq->heap = NULL;
+    pq->size = 0;
+}
 
 void swap(int *a, int *b){
     int tmp = *a;
@@ -36,28 +42,39 @@ void heapify_down(BinaryHeap *pq, int index){ //просеивание вниз 
 }
 
 void insert(BinaryHeap *pq, int item){ //добавление по ключу
+    int* tmp = (int*)realloc(pq->heap, (pq->size + 1) * sizeof(int));
+    if (tmp == NULL) {
+        printf("Memory allocation failed\n");
+        return;
+    }
+    pq->heap = tmp;
     pq->heap[pq->size++] = item;
     heapyfy_up(pq, pq->size - 1);
 }
 
 int extract_max(BinaryHeap *pq) { //возвращает элемент с максимальным приоритетом, заменяет корневой элемент последним элементом кучи
     if (pq->size == 0) {
-        return -1;//pq underflow
+        printf("Priority queue underflow\n");
+        return -1;
     }
     int max_item = pq->heap[0];
-    pq->heap[0] = pq->heap[pq->size-1];
-    pq->size--;
+    pq->heap[0] = pq->heap[--pq->size];
+    pq->heap = (int*)realloc(pq->heap, pq->size * sizeof(int));
+    if (pq->heap == NULL && pq->size > 0) {
+        printf("Memory allocation failed\n");
+        return -1;
+    }
     heapify_down(pq, 0);
     return max_item;
 }
 
 int peek_max(BinaryHeap *pq) { //возвращает элемент с макс. приоритетом не удаляя его из очереди
     if(pq->size == 0) {
-        return -1;//pa is empty
+        printf("Priority queue is empty\n");
+        return -1;
     }
     return pq->heap[0];
 }
-
 
 //слияние без разрушения
 void merge_queues(const BinaryHeap *pq1, const BinaryHeap *pq2, BinaryHeap *result) {
@@ -87,3 +104,54 @@ void merge_and_destroy_queues(BinaryHeap *pq1, BinaryHeap *pq2, BinaryHeap *resu
     pq1->size = 0;
     pq2->size = 0;
 }
+
+// int main() {
+//     BinaryHeap p1;
+//     BinaryHeap p2;
+//     createBinaryHeap(&p1);
+//     createBinaryHeap(&p2);
+
+//     insert(&p1, 1);
+//     insert(&p1, 3);
+//     insert(&p1, 2);
+
+//     insert(&p2, 4);
+//     insert(&p2, 5);
+//     insert(&p2, 0);
+    
+//     // Пример использования функций слияния
+//     BinaryHeap merged;
+//     merged.size = 0;
+//     merged.heap = NULL;
+
+//     for (int i = 0; i < p1.size; ++i) {
+//         printf("%d ", p1.heap[i]);
+//     }
+//     printf("\n");
+
+//     for (int i = 0; i < p2.size; ++i) {
+//         printf("%d ", p2.heap[i]);
+//     }
+    
+//     printf("\n");
+
+//     merge_queues(&p1, &p2, &merged); // Слияние без разрушения
+//     printf("Merged without destruction: ");
+//     for (int i = 0; i < merged.size; ++i) {
+//         printf("%d ", merged.heap[i]);
+//     }
+//     printf("\n");
+
+//     merge_and_destroy_queues(&p1, &p2, &merged); // Слияние с разрушением
+//     printf("Merged with destruction: ");
+//     for (int i = 0; i < merged.size; ++i) {
+//         printf("%d ", merged.heap[i]);
+//     }
+//     printf("\n");
+
+//     free(p1.heap);
+//     free(p2.heap);
+//     free(merged.heap);
+
+//     return 0;
+// }
