@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <bor.c>
 
 #define MAX_SYNONYMS 20
 
@@ -15,12 +16,19 @@ typedef struct {
     int count;
 } SynonymTable;
 
+
+typedef struct {
+    char* format;
+    int isLeft;
+    int isDebug;
+} Format;
+
 SynonymTable* create_table();
 void add_synonym(SynonymTable* table, const char* key, const char* value);
 const char* get_synonym(SynonymTable* table, const char* key);
 void free_table(SynonymTable* table);
-
-status_codes calculation();
+status_codes replace_operations_with_synonyms(char* expression, const SynonymTable table);
+status_codes calculation(char* file, const Format set, TrieNode* tree, const SynonymTable table);
 status_codes Settings(char* set_file, SynonymTable* table);
 
 SynonymTable* create_table() {
@@ -60,19 +68,53 @@ void free_table(SynonymTable* table) {
     free(table);
 }
 
-typedef struct {
-    char* format;
-    int isLeft;
-    int isDebag;
-} Format;
+status_codes replace_operations_with_synonyms(char* expression, const SynonymTable table) {
+    char* result = malloc(strlen(expression)); 
+    if (!result) {
+        return NO_MEMORY;
+    }
+    result[0] = '\0'; 
 
-Format set;
+    char* token = strtok(expression, " ,()");
+    while (token != NULL) {
+        const char* synonym = get_synonym(&table, token);
+        if (synonym != NULL) {
+            strcat(result, synonym);
+        } else {
+            strcat(result, token);
+        } 
 
-status_codes calculation() {
-    // Ваш код для вычислений
+        token = strtok(NULL, " ,()");
+    }
+
+    strcpy(expression, result);
+    free(result);
 }
 
-status_codes Settings(char* set_file, SynonymTable* table) {
+status_codes calculation(char* file, const Format set, TrieNode* tree, const SynonymTable table) {
+    FILE* file_calculations = fopen(file, "r");
+    if(file_calculations == NULL) {
+        return FILE_NOT_OPEN;
+    }
+
+    char* string = (char*)malloc(sizeof(char) * BUFSIZ);
+    while(fgets(string, BUFSIZ, file)) {
+        
+        if (set.isLeft) {
+            char* var = strtok(string, " ");
+            insert(tree, var);
+
+            strtok(NULL, " ");
+            char* expression = strtok(NULL, ";");
+            replace_operations_with_synonyms(expression, table);
+            
+        }
+    
+    }
+    
+}
+
+status_codes Settings(char* set_file, SynonymTable* table, Format* set) {
     FILE* file_settings = fopen(set_file, "r");
     if (file_settings == NULL) {
         return FILE_NOT_OPEN;
@@ -98,17 +140,17 @@ status_codes Settings(char* set_file, SynonymTable* table) {
         }
         printf("[104] %s\n", string);
         if (strcmp(string, "left=") == 0) {
-            set.isLeft = 1;
+            (*set).isLeft = 1;
         } else if (strcmp(string, "right=") == 0) {
-            set.isLeft = 0;
+            (*set).isLeft = 0;
         } else if (strcmp(string, "op()") == 0 || strcmp(string, "(op)") == 0 || strcmp(string, "()op") == 0) {
-            set.format = (char*)malloc(strlen(string) + 1);
-            if (set.format == NULL) {
+            (*set).format = (char*)malloc(strlen(string) + 1);
+            if ((*set).format == NULL) {
                 return NO_MEMORY;
             }
-            strcpy(set.format, string);
+            strcpy((*set).format, string);
         } else if (strcmp(string, "--debug") == 0 || strcmp(string, "-d") == 0 || strcmp(string, "/debag") == 0) {
-            set.isDebag = 1;
+            (*set).isDebug = 1;
         } else {
             char string2[BUFSIZ];
             if(fscanf(file_settings, "%s", string2) == 1) {    
@@ -130,14 +172,16 @@ int main(int argc, char** argv) { // файл настроек
     // }
 
     char file[] = "data.txt";
-
+    Format set;
     SynonymTable* table = create_table();;
 
-    status_codes status = Settings(file, table);
+    status_codes status = Settings(file, table, &set);
     if (status != OK) {
         fprint_err(stdout, status);
         return status;
     }
+
+    TrieNode *root = getNode();//бор для хранения переменных
 
     for (int i = 0; i < table->count; i++) {
         printf("%s %s\n", table->pairs[i].key, table->pairs[i].value);
@@ -147,6 +191,10 @@ int main(int argc, char** argv) { // файл настроек
         free(table);
     }
     free(set.format);
+
+
+
+
 
     return 0;
 }
