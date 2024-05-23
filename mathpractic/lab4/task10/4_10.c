@@ -322,13 +322,11 @@ uint32_t romanToDec(const char *roman) {
     return result;
 }
 
-// Функция для преобразования числа из цекендорфного формата в десятичный
 uint32_t zeckendorfToDecimal(const char *zeckendorf) {
     uint32_t decimal = 0;
     uint32_t fib1 = 1;
     uint32_t fib2 = 1; 
 
-    // Перебираем строку с представлением
     for (int i = 0; zeckendorf[i] != '\0'; ++i) {  
         if (zeckendorf[i] == '1') {
             decimal += fib1;
@@ -544,7 +542,6 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
         }
 
         char* var = strtok(expression, " ("); 
-        printf("[546] %s\n", var);
 
         if (var != NULL && strcmp(var, "output") == 0) {
             char* var1 = strtok(NULL, ")");
@@ -579,7 +576,6 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
                     fclose(file_calculations);
                     return NO_MEMORY;
                 }
-                printf("Enter the value for %s: ", var1);               
                 scanf("%s", val);
                 uint32_t res;
                 status_codes status = toDecimal(val, set.base_output, &res);
@@ -592,11 +588,9 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
             }
         } else {
             if (set.isLeft) {
-                printf("isLeft\n");
                 uint32_t result; 
                 strtok(NULL, " "); //пропускаем =
                 char* expression1 = strtok(NULL, ";");
-                printf("[598] %s\n", expression1);
 
                 if(expression1 != NULL) {
                     char expr[BUFSIZ];
@@ -608,7 +602,6 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
                             fclose(file_calculations);
                             return st2;
                         }
-                        printf("[611] %s\n", expr);
                     }
 
                     status_codes st_calc = calculate_expression(&result, expr, set, tree);
