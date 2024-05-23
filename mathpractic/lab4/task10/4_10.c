@@ -701,45 +701,55 @@ status_codes Settings(char* set_file, SynonymTable* table, Format* set) {
     return OK;
 }
 
-int main(int argc, char** argv) { // файл настроек
-    // if (argc < 2) {
-    //     fprint_err(stdout, INVALID_ARGC);
-    //     return INVALID_ARGC;
-    // }
+int main(int argc, char** argv) {
+    if (argc < 2 || argc > 5) {
+        fprint_err(stdout, INVALID_ARGC);
+        return INVALID_ARGC;
+    }
 
-    char file[] = "data.txt";
     Format set;
-    set.base_assign = 16;
+    set.base_assign = 10;
     set.base_input = 10;
     set.base_output = 10;
-    SynonymTable* table = create_table();
 
-    status_codes status = Settings(file, table, &set);
-    if (status != OK) {     
+    if (argc >= 3) {
+        set.base_assign = atol(argv[2]);
+        if (argc >= 4) {
+            set.base_input = atol(argv[3]);
+            if (argc == 5) {
+                set.base_output = atol(argv[4]);
+            }
+        }
+    }
+
+    SynonymTable* table = create_table();
+    if (!table) {
+        fprint_err(stdout, NO_MEMORY);
+        return NO_MEMORY;
+    }
+
+    status_codes status = Settings(argv[1], table, &set);
+    if (status != OK) {
         free_table(table);
-        free(set.format);
         fprint_err(stdout, status);
         return status;
     }
 
-    TreeNode *root = getNode();//бор для хранения переменных
-    // insert(root, "x", 2);
-    // insert(root, "y", 3);
-    // insert(root, "z", 4);
-
-    // for (int i = 0; i < table->count; i++) {
-    //     printf("%s %s\n", table->pairs[i].key, table->pairs[i].value);
-    // }
-
-    int st = calculation("expression.txt", set, root, *table);
-
-    if (root != NULL) {
-        freeTree(root);
+    TreeNode *root = getNode();
+    if (root == NULL) {
+        free_table(table);
+        fprint_err(stdout, NO_MEMORY);
+        return NO_MEMORY;
     }
+
+    status_codes st = calculation("expression.txt", set, root, *table);
+
+    freeTree(root);
     free_table(table);
     free(set.format);
+
     if (st != OK) {
-        fprint_err(stdout, st);     
+        fprint_err(stdout, st);
         return st;
     }
 
