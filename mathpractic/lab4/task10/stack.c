@@ -37,13 +37,13 @@ void* pop(Stack* stack) {
     if (isEmpty(stack)) {
         return NULL;
     }
-
-    Node* temp = stack->top;
-    void* data = temp->data;
-    stack->top = temp->next;
-    free(temp);
+    Node* top = stack->top;
+    void* data = top->data;
+    stack->top = top->next;
+    free(top);      // освобождение памяти для узла
     return data;
 }
+
 
 void* peek(Stack* stack) {
     if (isEmpty(stack)) {
@@ -57,6 +57,25 @@ void freeStack(Stack* stack) {
         free(pop(stack));
     }
 }
+
+void printStack(Stack* stack, void (*printFunction)(void*)) {
+    if (isEmpty(stack)) {
+        printf("Stack is empty.\n");
+        return;
+    }
+
+    printf("Stack contents:\n");
+    Node* current = stack->top;
+    while (current != NULL) {
+        printFunction(current->data);
+        current = current->next;
+    }
+}
+
+void printInt(void* data) {
+    printf("%d\n", *((int*)data));
+}
+
 
 // int main() {
 //     int a[3] = {1, 2, 3};

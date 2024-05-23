@@ -1,11 +1,12 @@
-right= #это комментарий
+left= #это комментарий
 (op)
-add sum
+#add sum
 #mult prod и это тоже комментарий
 [sub minus
 pow ^ и это...]
-div /
-rem %
+[div /
+mult *
+rem %]
 xor <>
 xor ><
 #xor <>
