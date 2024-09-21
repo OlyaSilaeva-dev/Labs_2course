@@ -94,20 +94,27 @@ status_codes uintToString(uint32_t val, char* string) {
 }
 
 status_codes replace_operations_in_decimal(char* expression, Format set, TreeNode* tree){
-    char* tmp = (char*)malloc(sizeof(char) * MAX_LENGTH);
+    
+    printf("[98]%s\n", expression);
+    char* tmp = (char*)malloc(sizeof(char) * BUFSIZ);
+
     if (tmp == NULL) {
         return NO_MEMORY;
     }
+    printf("[101]%s\n", expression);
     tmp[0] = '\0';
     char* token = strtok(expression, " ");
     while (token != NULL) {
+        printf("[104] %s\n", token);
         if (isOperator(token, 0)) {
             strcat(tmp, token);
         } else {
             TreeNode* node = search(tree, token);
             if(node != NULL) {
+                printf("[110] %s", token);
                 strcat(tmp, token);
             } else {
+                printf("[116] %s\n", token);
                 uint32_t dec; 
                 status_codes st = toDecimal(token, set.base_assign, &dec);
                 if (st != OK) {
@@ -148,6 +155,7 @@ status_codes replace_operators_with_synonyms(char* expression, SynonymTable tabl
 
     char* token = strtok(expression, " ,();\0");
     while (token != NULL) {
+        printf("%s\n", token);
         char* synonym = get_synonym(&table, token);
         size_t result_len = strlen(result);
         size_t synonym_len = synonym ? strlen(synonym) : strlen(token);
@@ -159,8 +167,10 @@ status_codes replace_operators_with_synonyms(char* expression, SynonymTable tabl
             return NO_MEMORY;
         }
         if (synonym != NULL) {
+            printf("[166] %s %s\n", token, synonym);
             strcat(result, synonym);
         } else {
+            printf("[169] %s\n", token);
             strcat(result, token);
         }
         
@@ -170,6 +180,7 @@ status_codes replace_operators_with_synonyms(char* expression, SynonymTable tabl
         }
     }
 
+    printf("%s\n", result);
     strcpy(expression, result);
     free(result);
     return OK;
@@ -339,6 +350,34 @@ uint32_t zeckendorfToDecimal(const char *zeckendorf) {
     return decimal;
 }
 
+
+void printAllVariablesHelper(TreeNode *node, char *buffer, int depth, Format set) {
+    if (node == NULL) return;
+
+    if (node->isEndOfkey) {
+        buffer[depth] = '\0';
+        if (set.base_output != 10) {
+            char ch[BUFSIZ];
+            toTheSystem(node->value, set.base_output, ch);
+            printf("%s: %s\n", buffer, ch);
+        } else {
+            printf("%s: %u\n", buffer, node->value);    
+        }
+    }
+
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        if (node->children[i]) {
+            buffer[depth] = indexToChar(i);
+            printAllVariablesHelper(node->children[i], buffer, depth + 1, set);
+        }
+    }
+}
+
+void printAllVariables(TreeNode *root, Format set) {
+    char buffer[MAX_SIZE];
+    printAllVariablesHelper(root, buffer, 0, set);
+}
+
 status_codes dialogue_with_user(const Format set, TreeNode* tree, const SynonymTable table, int* flag) {
     while(1) {
         printf("Select an action:\n");
@@ -375,7 +414,7 @@ status_codes dialogue_with_user(const Format set, TreeNode* tree, const SynonymT
             break;
 
         case 2:
-            printAllVariables(tree);
+            printAllVariables(tree, set);
             break;
         
         case 3:
@@ -394,15 +433,16 @@ status_codes dialogue_with_user(const Format set, TreeNode* tree, const SynonymT
                 fprint_err(stdout, NO_MEMORY);
                 break;
             }
-            printf("Enter the value of the variable: ");
-            scanf("%s", value);
-            uint32_t res;
-            toDecimal(value, 16, &res);
             
             TreeNode* node1 = search(tree, variable2);
             if (node1 == NULL) {
-                printf("the variable %s not found:\n", variable2);
+                printf("the variable %s not found\n", variable2);
             } else {
+                printf("Enter the value of the variable: ");
+                scanf("%s", value);
+                uint32_t res;
+                toDecimal(value, 16, &res);
+                
                 node1->value = res;
             }
             free(variable2);
@@ -535,12 +575,22 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
         }
 
         status_codes st1 = replace_operators_with_synonyms(expression, table, set);
+
         if(st1 != OK) {
             free(string1);
             fclose(file_calculations);
             return st1;
         }
 
+        char* expression1 = (char*) malloc(strlen(expression)*sizeof(char) + 1); // для right
+        if(expression1 == NULL) {
+            free(string1);
+            fclose(file_calculations);
+            return NO_MEMORY;
+        }
+
+        strcpy(expression1, expression);
+        printf("[588] %s\n", expression1);
         char* var = strtok(expression, " ("); 
 
         if (var != NULL && strcmp(var, "output") == 0) {
@@ -554,12 +604,14 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
                     if (!res) {
                         free(string1);
                         fclose(file_calculations);
+                        free(expression1);
                         return NO_MEMORY;
                     }
                     int status = toTheSystem(dec, set.base_output, res);
                     if (status != OK) {
                         free(string1);
                         fclose(file_calculations);
+                        free(expression1);
                         return status;
                     }
                     printf("%s = %s\n", var1, res);
@@ -574,6 +626,7 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
                 if (!val) {
                     free(string1);
                     fclose(file_calculations);
+                    free(expression1);
                     return NO_MEMORY;
                 }
                 scanf("%s", val);
@@ -582,6 +635,7 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
                 if (status != OK) {
                     free(string1);
                     fclose(file_calculations);
+                    free(expression1);
                     return status;
                 }
                 insert(tree, var1, res);
@@ -590,16 +644,17 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
             if (set.isLeft) {
                 uint32_t result; 
                 strtok(NULL, " "); //пропускаем =
-                char* expression1 = strtok(NULL, ";");
+                char* tok = strtok(NULL, ";");
 
-                if(expression1 != NULL) {
+                if(tok != NULL) {
                     char expr[BUFSIZ];
-                    strcpy(expr, expression1);
+                    strcpy(expr, tok);
                     if(set.base_assign != 10) {
                         status_codes st2 = replace_operations_in_decimal(expr, set, tree);
                         if (st2 != OK) {
                             free(string1);
                             fclose(file_calculations);
+                            free(expression1);
                             return st2;
                         }
                     }
@@ -608,13 +663,17 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
                     if (st_calc != OK) {
                         free(string1);
                         fclose(file_calculations);
+                        free(expression1);
                         return st_calc;
                     }
                     insert(tree, var, result);  
                 }  
             } else {
-                char* expression1 = strtok(string1, "=");          
-                if(expression1 != NULL) {                    
+                
+                char* tok = strtok(expression1, "=");
+             
+                printf("[669] %s\n", tok);          
+                if(tok != NULL) {                    
                     uint32_t result;
                     char* var_name = strtok(NULL, ";");
                     if (var_name != NULL) {
@@ -622,19 +681,25 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
                             var_name++;
                         }
                     }
+                    
+                    printf("[673] %s\n", var_name);
                     char expr[BUFSIZ];
-                    strcpy(expr, expression1);
+                    strcpy(expr, tok);
+                    printf("[684] %s\n", expr);
                     if (set.base_assign != 10) {
                         status_codes st2 = replace_operations_in_decimal(expr, set, tree);
+                        printf("[682] %s\n", tok);
                         if (st2 != OK) {
                             free(string1);
                             free(file_calculations);
+                            free(expression1);
                             return st2;
                         }
                     }
                     status_codes st3 = calculate_expression(&result, expr, set, tree);
                     if (st3 != OK) { 
-                        free(string1);
+                        free(string1);                       
+                        free(expression1);
                         fclose(file_calculations);
                         return st3;
                     }
@@ -644,6 +709,8 @@ status_codes calculation(char* file, const Format set, TreeNode* tree, const Syn
                 }  
             }
         }   
+        
+        free(expression1);
         free(string1);
     }
     fclose(file_calculations);
@@ -702,25 +769,25 @@ status_codes Settings(char* set_file, SynonymTable* table, Format* set) {
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2 || argc > 5) {
-        fprint_err(stdout, INVALID_ARGC);
-        return INVALID_ARGC;
-    }
+//    if (argc < 2 || argc > 5) {
+//        fprint_err(stdout, INVALID_ARGC);
+//        return INVALID_ARGC;
+//    }
 
     Format set;
-    set.base_assign = 10;
+    set.base_assign = 16;
     set.base_input = 10;
     set.base_output = 10;
-
-    if (argc >= 3) {
-        set.base_assign = atol(argv[2]);
-        if (argc >= 4) {
-            set.base_input = atol(argv[3]);
-            if (argc == 5) {
-                set.base_output = atol(argv[4]);
-            }
-        }
-    }
+//
+//    if (argc >= 3) {
+//        set.base_assign = atol(argv[2]);
+//        if (argc >= 4) {
+//            set.base_input = atol(argv[3]);
+//            if (argc == 5) {
+//                set.base_output = atol(argv[4]);
+//            }
+//        }
+//    }
 
     SynonymTable* table = create_table();
     if (!table) {
@@ -728,7 +795,8 @@ int main(int argc, char** argv) {
         return NO_MEMORY;
     }
 
-    status_codes status = Settings(argv[1], table, &set);
+    status_codes status = Settings("data1.txt", table, &set);//argv[1]
+
     if (status != OK) {
         free_table(table);
         fprint_err(stdout, status);
@@ -742,7 +810,7 @@ int main(int argc, char** argv) {
         return NO_MEMORY;
     }
 
-    status_codes st = calculation("expression.txt", set, root, *table);
+    status_codes st = calculation("expression1.txt", set, root, *table);
 
     freeTree(root);
     free_table(table);

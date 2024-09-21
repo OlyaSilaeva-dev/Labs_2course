@@ -1,15 +1,16 @@
+-d
 left= #это комментарий
-(op)
-#add sum
+op()
+add sum
 #mult prod и это тоже комментарий
 [sub minus
 pow ^ и это...]
-[div /
+div /
 mult *
-rem %]
+rem %
 xor <>
 xor ><
 #xor <>
 input in
 output print
-= ->
+#= ->

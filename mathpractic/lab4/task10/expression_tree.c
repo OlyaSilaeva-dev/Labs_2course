@@ -115,6 +115,7 @@ status_codes infixToPostfix(char* infix, char** postfix, TreeNode *variableTrie)
             TreeNode* node = search(variableTrie, variable);
             if (node == NULL) {
                 if (!isOperator(variable, 0)) {
+                    // printf("[118] Wrong element %s", variable);
                     free(variable);
                     free(*postfix);
                     free(postfix_expression);
@@ -160,6 +161,8 @@ status_codes infixToPostfix(char* infix, char** postfix, TreeNode *variableTrie)
             --i;
 
             if (!isOperator(operator, 0)) {
+                
+                    // printf("[165] Wrong element %s", operator);
                 free(operator);
                 free(*postfix);
                 free(postfix_expression);

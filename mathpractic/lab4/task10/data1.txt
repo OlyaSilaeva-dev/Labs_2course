@@ -1,0 +1,15 @@
+-d
+right= #это комментарий
+(op)
+#mult prod и это тоже комментарий
+[sub minus
+pow ^ и это...]
+div /
+mult *
+rem %
+xor <>
+xor ><
+#xor <>
+input in
+output print
+#= ->

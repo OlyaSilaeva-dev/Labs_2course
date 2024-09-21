@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define ALPHABET_SIZE 63
-#define MAX_SIZE 100 
+#define MAX_SIZE 100
 
 typedef struct TreeNode {
     struct TreeNode **children;
@@ -142,26 +142,6 @@ void freeTree(TreeNode *node) {
     free(node);
 }
 
-void printAllVariablesHelper(TreeNode *node, char *buffer, int depth) {
-    if (node == NULL) return;
-
-    if (node->isEndOfkey) {
-        buffer[depth] = '\0';
-        printf("%s: %u\n", buffer, node->value);
-    }
-
-    for (int i = 0; i < ALPHABET_SIZE; i++) {
-        if (node->children[i]) {
-            buffer[depth] = indexToChar(i);
-            printAllVariablesHelper(node->children[i], buffer, depth + 1);
-        }
-    }
-}
-
-void printAllVariables(TreeNode *root) {
-    char buffer[MAX_SIZE];
-    printAllVariablesHelper(root, buffer, 0);
-}
 
 // int main() {
 //     char keys[][11] = {"The_key", "the_key", "there_key", "any_key", "answer_key",  "by_key", "bye_key", "their_key"};

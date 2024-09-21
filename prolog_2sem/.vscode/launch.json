@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/src/GitHub/Labs_2course/prolog_2sem",
-      "program": "c:/src/GitHub/Labs_2course/prolog_2sem/build/Debug/outDebug",
+      "cwd": "c:/src/GitHub/Labs_2course/mathpractic/lab4/task9",
+      "program": "c:/src/GitHub/Labs_2course/mathpractic/lab4/task9/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

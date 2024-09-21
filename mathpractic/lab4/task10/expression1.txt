@@ -1,0 +1,6 @@
+1E12 = Var;
+Var add 1 = var;
+print(var);
+var * FF add Var = var1;
+#BREAKPOINT
+print(var1);

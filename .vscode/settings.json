@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        ".fantomasignore": "ignore",
+        "header.h": "c",
+        "stdlib.h": "c",
+        "cmath": "c",
+        "stdint.h": "c",
+        "xstring": "c",
+        "complex": "c",
+        "system_error": "c",
+        "type_traits": "c",
+        "xtr1common": "c",
+        "xutility": "c"
+    }
+}

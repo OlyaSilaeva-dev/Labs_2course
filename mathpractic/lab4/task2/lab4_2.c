@@ -3,9 +3,9 @@
 
 
 
-
-LoadElements(){
-};
+//
+//LoadElements(){
+//};
 
 int main(){
     char* choice = (char*)malloc(sizeof(char) * BUFSIZ);

@@ -25,7 +25,14 @@ status_codes checkBracketsBalance(char* expression) {
     return OK;
 }
 
-bool isOperator(char operator) {
+bool isOperator(char* operator, int index) {
+    if ((operator[index] == "a" && operator[index + 1] == "d" && operator[index + 2] == "a") ||
+        (operator[index] == "m" && operator[index + 1] == "u" && operator[index + 2] == "l" && operator[index + 2] == "t") ||
+        (operator[index] == "s" && operator[index + 1] == "u" && operator[index + 2] == "b") ||
+        (operator[index] == "p" && operator[index + 1] == "o" && operator[index + 2] == "w") ||
+            ) return 1;
+
+
     return (operator == '-') || (operator == '+') || (operator == '*') || (operator == '%') || (operator == '/') || (operator == '^');
 }
 
@@ -66,7 +73,7 @@ status_codes infixToPostfix(char* infix, char** postfix) {
                 postfix_expression[index++] = ' ';
             }
             pop(&operator_stack);
-        } else if (isOperator(infix[i])) {
+        } else if (isOperator(infix, i)) {
             while (!isEmpty(&operator_stack) && Priority(*(char*)peek(&operator_stack)) >= Priority(infix[i])) {
                 postfix_expression[index++] = *(char*)pop(&operator_stack);
                 postfix_expression[index++] = ' ';
@@ -178,7 +185,7 @@ int main(int argc, char** argv) {
             if (length > 0 && expression[length - 1] == '\n') {
                 expression[length - 1] = '\0';
             }
-            printf("%s\n", expression);
+            // printf("%s\n", expression);
 
             status_codes st = checkBracketsBalance(expression);
             if (st != OK) {
@@ -189,7 +196,7 @@ int main(int argc, char** argv) {
             char* postfixExpression;
             st = infixToPostfix(expression, &postfixExpression);
             if (st == OK) {
-                printf("%s\n", postfixExpression);
+                // printf("%s\n", postfixExpression);
             } else {
                 printfErr(file_err, argv[i], st, (i + 1));
                 break;

@@ -101,7 +101,7 @@ void printDeliveredMails(Post* post) {
 
 void printExpiredMails(Post* post) {
     time_t now;
-    struct tm* timeinfo;
+    struct tm *timeinfo;
     time(&now);
     timeinfo = localtime(&now);
 
@@ -111,7 +111,7 @@ void printExpiredMails(Post* post) {
         sscanf(post->mails[i].createdAt, "%d:%d:%d %d:%d:%d",
                &mailTime.tm_year, &mailTime.tm_mon, &mailTime.tm_mday,
                &mailTime.tm_hour, &mailTime.tm_min, &mailTime.tm_sec);
-        
+
         mailTime.tm_year -= 1900;
         mailTime.tm_mon -= 1;
         time_t mailTimestamp = mktime(&mailTime);
@@ -120,82 +120,83 @@ void printExpiredMails(Post* post) {
             printMailInformation(&post->mails[i]);
         }
     }
-    int compareMails(const void* a, const void* b) {
-    Mail* mailA = (Mail*)a;
-    Mail* mailB = (Mail*)b;
-    int indexComparison = strcmp(mailA->recipientAddress.index, mailB->recipientAddress.index);
-    if (indexComparison == 0) {
-        return strcmp(mailA->postIdentifier, mailB->postIdentifier);
+    int compareMails(const void *a, const void *b) {
+        Mail *mailA = (Mail *) a;
+        Mail *mailB = (Mail *) b;
+        int indexComparison = strcmp(mailA->recipientAddress.index, mailB->recipientAddress.index);
+        if (indexComparison == 0) {
+            return strcmp(mailA->postIdentifier, mailB->postIdentifier);
+        }
+        return indexComparison;
     }
-    return indexComparison;
-}
 
-void sortMails(Post* post) {
-    qsort(post->mails, post->mailCount, sizeof(Mail), compareMails);
-}
+    void sortMails(Post *post) {
+        qsort(post->mails, post->mailCount, sizeof(Mail), compareMails);
+    }
 
-int main() {
-    Post post;
-    post.currentPostOffice = (Address*)malloc(sizeof(Address));
+    int main() {
+        Post post;
+        post.currentPostOffice = (Address *) malloc(sizeof(Address));
 
-    post.mails = (Mail*)malloc(MAX_SIZE * sizeof(Mail));
-    post.mailCount = 0;
+        post.mails = (Mail *) malloc(MAX_SIZE * sizeof(Mail));
+        post.mailCount = 0;
 
-    int option;
-    while (1) {
-        printf("\nВыберите опцию:\n");
-        printf("1. Добавить отправление\n");
-        printf("2. Удалить отправление по идентификатору\n");
-        printf("3. Найти информацию об отправлении по идентификатору\n");
-        printf("4. Показать все доставленные отправления\n");
-        printf("5. Показать все истекшие отправления\n");
-        printf("6. Выход\n");
-        scanf("%d", &option);
-        getchar();
+        int option;
+        while (1) {
+            printf("\nВыберите опцию:\n");
+            printf("1. Добавить отправление\n");
+            printf("2. Удалить отправление по идентификатору\n");
+            printf("3. Найти информацию об отправлении по идентификатору\n");
+            printf("4. Показать все доставленные отправления\n");
+            printf("5. Показать все истекшие отправления\n");
+            printf("6. Выход\n");
+            scanf("%d", &option);
+            getchar();
 
-        switch (option) {
-            case 1:
-                addMail(&post);
-                sortMails(&post);
-                break;
-            case 2: {
-                char identifier[15];
-                printf("Введите идентификатор для удаления: ");
-                scanf("%s", identifier);
-                deleteMail(&post, identifier);
-                sortMails(&post);
-                break;
-            }
-            case 3: {
-                char identifier[15];
-                printf("Введите идентификатор для поиска: ");
-                scanf("%s", identifier);
-                for (int i = 0; i < post.mailCount; i++) {
-                    if (strcmp(post.mails[i].postIdentifier, identifier) == 0) {
-                        printf("Информация об отправлении с идентификатором %s:\n", identifier);
-                        printMailInformation(&post.mails[i]);
-                        break;
-                    }
-                    if (i == post.mailCount - 1) {
-                        printf("Отправление с указанным идентификатором не найдено.\n");
-                    }
+            switch (option) {
+                case 1:
+                    addMail(&post);
+                    sortMails(&post);
+                    break;
+                case 2: {
+                    char identifier[15];
+                    printf("Введите идентификатор для удаления: ");
+                    scanf("%s", identifier);
+                    deleteMail(&post, identifier);
+                    sortMails(&post);
+                    break;
                 }
-                break;
+                case 3: {
+                    char identifier[15];
+                    printf("Введите идентификатор для поиска: ");
+                    scanf("%s", identifier);
+                    for (int i = 0; i < post.mailCount; i++) {
+                        if (strcmp(post.mails[i].postIdentifier, identifier) == 0) {
+                            printf("Информация об отправлении с идентификатором %s:\n", identifier);
+                            printMailInformation(&post.mails[i]);
+                            break;
+                        }
+                        if (i == post.mailCount - 1) {
+                            printf("Отправление с указанным идентификатором не найдено.\n");
+                        }
+                    }
+                    break;
+                }
+                case 4:
+                    printDeliveredMails(&post);
+                    break;
+                case 5:
+                    printExpiredMails(&post);
+                    break;
+                case 6:
+                    printf("Выход из программы.\n");
+                    free(post.currentPostOffice);
+                    free(post.mails);
+                    return 0;
+                default:
+                    printf("Неверная опция. Пожалуйста, выберите существующую опцию.\n");
+                    break;
             }
-            case 4:
-                printDeliveredMails(&post);
-                break;
-            case 5:
-                printExpiredMails(&post);
-                break;
-            case 6:
-                printf("Выход из программы.\n");
-                free(post.currentPostOffice);
-                free(post.mails);
-                return 0;
-            default:
-                printf("Неверная опция. Пожалуйста, выберите существующую опцию.\n");
-                break;
         }
     }
 }
